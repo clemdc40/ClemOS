@@ -1,34 +1,52 @@
-; boot.asm
 [BITS 16]
-[org 0x7C00]        ; Adresse de chargement du bootloader
+[ORG 0x7C00]
 
-start:
-    ; Initialisation des segments (facultatif pour un premier test)
-    xor ax, ax
+cli
+lgdt [gdt_descriptor]
+mov eax, cr0
+or eax, 0x1
+mov cr0, eax
+jmp 08h:start_protected_mode
+
+[BITS 32]
+start_protected_mode:
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
+    mov fs, ax
+    mov gs, ax
     mov ss, ax
-    mov sp, 0x7C00
 
-    ; Préparation pour l'affichage du texte
-    mov si, message
+    mov edi, 0xB8000      ; Adresse mémoire vidéo en mode texte
+    mov esi, welcome_message
+    call print_string
 
-print_char:
-    lodsb           ; Charge le caractère pointé par SI dans AL et incrémente SI
-    cmp al, 0
-    je halt         ; Si le caractère est 0 (fin de chaîne), on sort de la boucle
-    mov ah, 0x0E    ; Fonction d'affichage teletype du BIOS
-    int 0x10        ; Appel de l'interruption BIOS pour afficher le caractère
-    jmp print_char
+    jmp $
 
-halt:
-    cli             ; Désactive les interruptions
-    hlt             ; Arrête le processeur
-    jmp halt        ; Boucle infinie pour ne pas continuer l'exécution
+print_string:
+    mov ecx, 80           ; On limite à 80 caractères
+.loop:
+    lodsb
+    test al, al
+    jz done
+    mov [edi], al         ; Stocke le caractère ASCII
+    mov byte [edi+1], 0x0F ; Définit la couleur (blanc sur noir)
+    add edi, 2            ; Passe au caractère suivant
+    loop .loop
 
-; Message à afficher (terminé par un 0)
-message db "ClemOS", 0
+done:
+    ret
 
-; Remplissage jusqu'à 510 octets, puis signature 0xAA55 pour le bootloader
+gdt:
+    dq 0x0000000000000000  ; Null descriptor
+    dq 0x00CF9A000000FFFF  ; Code segment (32-bit)
+    dq 0x00CF92000000FFFF  ; Data segment
+
+gdt_descriptor:
+    dw (gdt_descriptor - gdt) - 1
+    dd gdt
+
+welcome_message db "ClemOS 32-bit Mode is running!", 0
+
 times 510 - ($ - $$) db 0
 dw 0xAA55

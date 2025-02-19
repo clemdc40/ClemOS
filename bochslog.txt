@@ -28,35 +28,34 @@
 00000000000i[USBCTL] Pluggable USB devices
 00000000000i[USBCTL]   floppy mouse tablet keypad keyboard hub disk cdrom
 00000000000i[USBCTL]   printer
-00000000000i[MEM0  ] allocated memory at 0000025704A91040. after alignment, vector=0000025704A92000, block_size = 128K
+00000000000i[MEM0  ] allocated memory at 00000236E7E0C040. after alignment, vector=00000236E7E0D000, block_size = 128K
 00000000000i[MEM0  ] 32,00MB
 00000000000i[MEM0  ] mem block size = 0x00020000, blocks=256
 00000000000i[MEM0  ] rom at 0xfffe0000/131072 ('C:\Program Files\Bochs-3.0\BIOS-bochs-latest')
 00000000000i[CPU0  ] WARNING: RDRAND would not produce true random numbers !
 00000000000i[CPU0  ] initialized CPU model corei7_haswell_4770
 00000000000i[DEV   ] will paste characters every 100 iodev timer ticks
+00000000000i[PLUGIN] init_dev of 'svga_cirrus' plugin device by virtual method
+00000000000i[MEM0  ] Register memory access handlers: 0x0000000a0000 - 0x0000000bffff
+00000000000i[      ] interval=100000, mode=realtime
+00000000000i[      ] Setting VGA update interval to 100000 (10,0 Hz)
+00000000000i[      ] VSYNC using standard mode
+00000000000i[CIRRUS] CL-GD5430 ISA initialized
+00000000000i[WINGUI] Desktop window dimensions: 1920 x 1080
+00000000000i[WINGUI] Number of Mouse Buttons = 5
+00000000000i[WINGUI] IME disabled
+00000000000i[MEM0  ] rom at 0xc0000/32768 ('C:\Program Files\Bochs-3.0\VGABIOS-lgpl-latest.bin')
 00000000000i[PLUGIN] init_dev of 'pci' plugin device by virtual method
 00000000000i[DEV   ] i440FX PMC present at device 0, function 0
 00000000000i[PLUGIN] init_dev of 'pci2isa' plugin device by virtual method
 00000000000i[DEV   ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLUGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS  ] Using local time for initial clock
-00000000000i[CMOS  ] Setting initial clock to: Thu Feb 20  0:04:35   2025 tz=utc (time0=1740009875)
+00000000000i[CMOS  ] Setting initial clock to: Thu Feb 20  0:12:54   2025 tz=utc (time0=1740010374)
 00000000000i[PLUGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA   ] channel 4 used by cascade
 00000000000i[PLUGIN] init_dev of 'pic' plugin device by virtual method
 00000000000i[PLUGIN] init_dev of 'pit' plugin device by virtual method
-00000000000i[PLUGIN] init_dev of 'vga' plugin device by virtual method
-00000000000i[MEM0  ] Register memory access handlers: 0x0000000a0000 - 0x0000000bffff
-00000000000i[VGA   ] interval=100000, mode=realtime
-00000000000i[VGA   ] Setting VGA update interval to 100000 (10,0 Hz)
-00000000000i[VGA   ] VSYNC using standard mode
-00000000000i[MEM0  ] Register memory access handlers: 0x0000e0000000 - 0x0000e0ffffff
-00000000000i[BXVGA ] VBE Bochs Display Extension Enabled (16 MB)
-00000000000i[WINGUI] Desktop window dimensions: 1920 x 1080
-00000000000i[WINGUI] Number of Mouse Buttons = 5
-00000000000i[WINGUI] IME disabled
-00000000000i[MEM0  ] rom at 0xc0000/32768 ('C:\Program Files\Bochs-3.0\VGABIOS-lgpl-latest.bin')
 00000000000i[PLUGIN] init_dev of 'floppy' plugin device by virtual method
 00000000000i[DMA   ] channel 2 used by Floppy Drive
 00000000000i[FLOPPY] fd0: 'boot.bin' ro=0, h=2,t=80,spt=18
@@ -89,13 +88,13 @@
 00000000000i[PLUGIN] init_dev of 'usb_uhci' plugin device by virtual method
 00000000000i[DEV   ] USB UHCI present at device 1, function 2
 00000000000i[UHCI  ] USB UHCI initialized
+00000000000i[PLUGIN] register state of 'svga_cirrus' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'pci' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'pci2isa' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'cmos' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'dma' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'pic' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'pit' plugin device by virtual method
-00000000000i[PLUGIN] register state of 'vga' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'floppy' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'unmapped' plugin device by virtual method
 00000000000i[PLUGIN] register state of 'biosdev' plugin device by virtual method
@@ -190,13 +189,13 @@
 00000000000i[CPU0  ] 		tsc_adjust
 00000000000i[CPU0  ] 		tsc_deadline
 00000000000i[CPU0  ] 		fcs_fds_deprecation
+00000000000i[PLUGIN] reset of 'svga_cirrus' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'pci' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'pci2isa' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'cmos' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'dma' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'pic' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'pit' plugin device by virtual method
-00000000000i[PLUGIN] reset of 'vga' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'floppy' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'acpi' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'hpet' plugin device by virtual method
@@ -255,8 +254,5 @@
 00001417436i[PCI   ] i440FX PMC write to PAM register 59 (TLB Flush)
 00001418169i[BIOS  ] bios_table_cur_addr: 0x000fa394
 00001518117i[VBIOS ] VGABios ID: vgabios.c 2025-01-08
-00001518200i[BXVGA ] VBE known Display Interface b0c0
-00001518240i[BXVGA ] VBE known Display Interface b0c5
-00001519657i[VBIOS ] VBE Bios ID: vbe.c 2025-01-08
-00013810513i[BIOS  ] Booting from 0000:7c00
-00013813067i[CPU0  ] WARNING: HLT instruction with IF=0!
+00001519628i[VBIOS ] VBE Bios ID: vbe.c 2025-01-08
+00013810010i[BIOS  ] Booting from 0000:7c00
