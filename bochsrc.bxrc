@@ -14,3 +14,4 @@ log: bochslog.txt
 
 # Interface graphique (tu peux changer "win32" selon ton OS)
 display_library: win32
+vga: extension=cirrus
