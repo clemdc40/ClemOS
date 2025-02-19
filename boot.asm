@@ -1,52 +1,34 @@
-[org 0x7C00]      ; Adresse de chargement du bootloader
-bits 16           ; Mode réel (16 bits)
+; boot.asm
+[BITS 16]
+[org 0x7C00]        ; Adresse de chargement du bootloader
 
 start:
-    cli           ; Désactiver les interruptions
-    mov ax, 0x2401
-    int 0x15      ; Désactiver le cache CPU (par sécurité)
-
-    lgdt [gdt_desc]   ; Charger la GDT (pour passer en mode protégé)
-
-    ; Activer le mode protégé (32 bits)
-    mov eax, cr0
-    or eax, 1
-    mov cr0, eax
-
-    jmp CODE_SEG:init_pm   ; Sauter en mode protégé
-
-[bits 32]         ; Passage en mode protégé (32 bits)
-
-init_pm:
-    mov ax, DATA_SEG
+    ; Initialisation des segments (facultatif pour un premier test)
+    xor ax, ax
     mov ds, ax
     mov es, ax
-    mov fs, ax
-    mov gs, ax
     mov ss, ax
+    mov sp, 0x7C00
 
-    ; Charger le kernel (adresse 0x100000)
-    mov esp, 0x90000
-    call KERNEL_ENTRY   ; Appeler le kernel
+    ; Préparation pour l'affichage du texte
+    mov si, message
 
-    jmp $
+print_char:
+    lodsb           ; Charge le caractère pointé par SI dans AL et incrémente SI
+    cmp al, 0
+    je halt         ; Si le caractère est 0 (fin de chaîne), on sort de la boucle
+    mov ah, 0x0E    ; Fonction d'affichage teletype du BIOS
+    int 0x10        ; Appel de l'interruption BIOS pour afficher le caractère
+    jmp print_char
 
-; GDT (Global Descriptor Table)
-gdt:
-    dq 0              ; Descripteur nul
-gdt_code:
-    dw 0xFFFF, 0x0000, 0x9A, 0xCF
-gdt_data:
-    dw 0xFFFF, 0x0000, 0x92, 0xCF
-gdt_end:
+halt:
+    cli             ; Désactive les interruptions
+    hlt             ; Arrête le processeur
+    jmp halt        ; Boucle infinie pour ne pas continuer l'exécution
 
-gdt_desc:
-    dw gdt_end - gdt - 1
-    dd gdt
+; Message à afficher (terminé par un 0)
+message db "ClemOS", 0
 
-CODE_SEG equ gdt_code - gdt
-DATA_SEG equ gdt_data - gdt
-KERNEL_ENTRY equ 0x100000
-
-times 510-($-$$) db 0
-dw 0xAA55  ; Signature du bootloader
+; Remplissage jusqu'à 510 octets, puis signature 0xAA55 pour le bootloader
+times 510 - ($ - $$) db 0
+dw 0xAA55

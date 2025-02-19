@@ -1,0 +1,16 @@
+# Configuration pour Bochs
+megs: 32                # Quantité de RAM (ajuste si besoin)
+romimage: file="C:\Program Files\Bochs-3.0\BIOS-bochs-latest"
+vgaromimage: file="C:\Program Files\Bochs-3.0\VGABIOS-lgpl-latest.bin"
+
+# Charge l'image de disquette contenant le bootloader
+floppya: 1_44="boot.bin", status=inserted
+
+# Bochs démarre depuis le lecteur de disquette (A:)
+boot: a
+
+# Logs
+log: bochslog.txt
+
+# Interface graphique (tu peux changer "win32" selon ton OS)
+display_library: win32
