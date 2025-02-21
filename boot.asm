@@ -1,133 +1,48 @@
-; ===================================================================
-;  Bootloader ClemOS - Passe en mode protégé, affiche un prompt
-; ===================================================================
-[ORG 0x7C00]       ; L'adresse où le BIOS charge ce secteur (512 octets)
+; boot.asm – Bootloader (stage 1) 16 bits, 512 octets max
+
+[ORG 0x7C00]
 [BITS 16]
 
 start:
-    ; Désactiver les interruptions
     cli
-
-    ; Configuration de la GDT
-    lgdt [gdt_descriptor]
-
-    ; Passer en mode protégé : on met le bit PE (Protection Enable) dans CR0
-    mov eax, cr0
-    or  eax, 0x1
-    mov cr0, eax
-
-    ; Saut lointain (far jump) pour vider le pipeline et activer le PM
-    jmp 0x08:protected_mode_entry
-
-
-; -------------------------------------------------------------------
-;  Mode protégé (32 bits)
-; -------------------------------------------------------------------
-[BITS 32]
-
-protected_mode_entry:
-    ; Initialiser les segments
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-
-    ; Initialiser la pile (pile très basique pour le moment)
-    mov esp, 0x90000    ; Par exemple, on place la pile à 0x90000
-
-    ; Appeler le code qui efface l'écran et affiche le prompt
-    call start_command_prompt
-
-.halt:
-    ; Boucle infinie pour bloquer ici si jamais on en sort
-    jmp .halt
-
-
-; -------------------------------------------------------------------
-;  Code du prompt et lecture clavier
-; -------------------------------------------------------------------
-start_command_prompt:
-    ; Effacer l'écran (80x25)
-    mov edi, 0xB8000
-    mov ecx, 80*25
-.clear_screen:
-    mov word [edi], 0x0720  ; (0x20 = espace, 0x07 = gris sur noir)
-    add edi, 2
-    loop .clear_screen
-
-    ; Réinitialiser le pointeur (en haut à gauche de l'écran)
-    mov edi, 0xB8000
-
-    ; Afficher "ClemOS >"
-    mov esi, prompt_message
+    ; Affiche un message de chargement (optionnel, en 16 bits)
+    mov si, kernel_load_msg
     call print_string
 
-command_loop:
-    ; Lire un scancode
-    call read_key
-    ; Afficher directement le scancode (pour l’exemple)
-    ; Si tu veux afficher un caractère ASCII, il faudra convertir ici.
-    mov [edi], al
-    mov byte [edi+1], 0x0F  ; blanc sur noir
-    add edi, 2
-    jmp command_loop
+    ; Charger le kernel depuis le disque (par exemple, 10 secteurs à partir du secteur 2)
+    mov ah, 0x02         ; fonction lecture secteur
+    mov al, 10           ; nombre de secteurs
+    mov ch, 0            ; cylindre 0
+    mov cl, 2            ; secteur 2
+    mov dh, 0            ; tête 0
+    mov dl, 0            ; disque 0
+    mov ax, 0x2000       ; Charger à 0x20000
+    mov es, ax
+    mov bx, 0x0000
+    int 0x13
 
+    ; Passer en mode protégé n'est pas nécessaire ici si le kernel en 32 bits le gère
+    ; On saute directement vers le kernel chargé à 0x20000.
+    ; Utilisation d'un saut loin (far jump)
+    jmp 0x2000:0x0000
 
-; -------------------------------------------------------------------
-;  Lecture du clavier (polling)
-; -------------------------------------------------------------------
-read_key:
-.wait_key:
-    in   al, 0x64       ; lire le status du contrôleur clavier
-    test al, 1          ; vérifier si le buffer est plein
-    jz .wait_key
-
-    in al, 0x60         ; récupérer le scancode
-    ret
-
-
-; -------------------------------------------------------------------
-;  Afficher une chaîne terminée par 0
-; -------------------------------------------------------------------
+; Routine simple pour afficher une chaîne (16 bits, utilisant BIOS)
 print_string:
-    mov ecx, 80  ; limite de sécurité (80 caractères max)
-.print_loop:
-    lodsb
-    test al, al
-    jz .done_print
-    mov [edi], al
-    mov byte [edi+1], 0x0F   ; blanc sur noir
-    add edi, 2
-    loop .print_loop
-.done_print:
+    mov ax, 0xB800       ; Charger le segment VGA dans AX
+    mov es, ax           ; ES = 0xB800
+    mov di, 0            ; Offset à 0 (début de la mémoire VGA)
+.print_char:
+    lodsb                ; Charger le caractère suivant dans AL
+    cmp al, 0            ; Fin de la chaîne ?
+    je .done
+    mov [es:di], al      ; Écrire le caractère dans la mémoire VGA
+    mov byte [es:di+1], 0x07  ; Attribuer une couleur (par exemple, blanc sur noir)
+    add di, 2            ; Avancer au prochain caractère (2 octets par caractère)
+    jmp .print_char
+.done:
     ret
 
-
-; -------------------------------------------------------------------
-;  Chaînes et données
-; -------------------------------------------------------------------
-prompt_message db "ClemOS > ", 0
-
-
-; -------------------------------------------------------------------
-;  GDT : descripteurs pour le mode protégé
-; -------------------------------------------------------------------
-gdt:
-    dq 0x0000000000000000     ; Descripteur NULL
-    dq 0x00CF9A000000FFFF     ; Code segment 32 bits
-    dq 0x00CF92000000FFFF     ; Data segment 32 bits
-
-gdt_end:
-
-gdt_descriptor:
-    dw gdt_end - gdt - 1      ; taille de la GDT - 1
-    dd gdt                    ; adresse linéaire de la GDT
-
-
-; -------------------------------------------------------------------
-;  Remplir jusqu’à 512 octets et signer le secteur
-; -------------------------------------------------------------------
+; --- Remplissage pour atteindre 510 octets ---
+kernel_load_msg db "Loading kernel...", 0  ; ✅ Déplacé avant `times 510`
 times 510 - ($ - $$) db 0
 dw 0xAA55
