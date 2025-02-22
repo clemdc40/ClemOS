@@ -1,13 +1,19 @@
 cd /c/Users/Utilisateur/Documents/clement/programming/minimal_os/V4
 
 nasm -f bin boot.asm -o boot.bin
-ls -lh boot.bin
+gcc -m32 -ffreestanding -nostdlib -fno-pic -c kernel.c -o kernel.o
+ld -m elf_i386 -T linker.ld -o kernel.bin --oformat binary kernel.o
 dd if=/dev/zero of=os.img bs=512 count=2880
 dd if=boot.bin of=os.img bs=512 count=1 conv=notrunc
-xxd os.img | head -n 20
-gcc -ffreestanding -m32 -c kernel.c -o kernel.o
-ld -m elf_i386 -T kernel.ld -o kernel.bin kernel.o
-ls -lh kernel.bin
 dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc
-ls -lh os.img
-xxd os.img | head -n 50
+
+
+
+nasm -f bin boot.asm -o boot.bin
+gcc -m32 -ffreestanding -fno-stack-protector -c kernel.c -o kernel.o
+ld -m elf_i386 -T linker.ld -o kernel.elf kernel.o
+objcopy -O binary kernel.elf kernel.bin
+ls -l kernel.bin
+dd if=/dev/zero of=os.img bs=512 count=2880  # Image de 1.44Mo vide
+dd if=boot.bin of=os.img bs=512 count=1 conv=notrunc
+dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc
