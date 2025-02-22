@@ -1,4 +1,4 @@
-megs: 32
+megs: 512
 romimage: file="C:\Program Files\Bochs-3.0\BIOS-bochs-latest"
 vgaromimage: file="C:\Program Files\Bochs-3.0\VGABIOS-lgpl-latest.bin"
 
